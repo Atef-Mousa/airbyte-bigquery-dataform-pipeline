@@ -1,0 +1,18 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "Cleaned products catalog",
+  assertions: {
+    uniqueKey: ["product_id"],
+    nonNull: ["product_id", "price"],
+    rowConditions: ["price >= 0"]
+  }
+}
+
+SELECT
+  CAST(id AS INT64)             AS product_id,
+  TRIM(name)                    AS product_name,
+  INITCAP(TRIM(category))       AS category,
+  CAST(price AS NUMERIC)        AS price,
+  CAST(updated_at AS TIMESTAMP) AS updated_at
+FROM ${ref("products")}

@@ -1,0 +1,34 @@
+config {
+  type: "incremental",
+  schema: "marts",
+  description: "Fact table: one row per order line. Partitioned by order_date, clustered for cheaper queries.",
+  uniqueKey: ["order_item_id"],
+  bigquery: {
+    partitionBy: "order_date",
+    clusterBy: ["customer_id", "product_id"]
+  },
+  assertions: {
+    uniqueKey: ["order_item_id"],
+    nonNull: ["order_item_id", "order_id", "customer_id", "product_id", "order_date"],
+    rowConditions: ["line_amount >= 0"]
+  }
+}
+
+SELECT
+  oi.order_item_id,
+  oi.order_id,
+  o.customer_id,
+  oi.product_id,
+  DATE(o.ordered_at)            AS order_date,
+  o.status,
+  oi.quantity,
+  oi.unit_price,
+  oi.quantity * oi.unit_price   AS line_amount,
+  GREATEST(oi.updated_at, o.updated_at) AS updated_at
+FROM ${ref("stg_order_items")} AS oi
+JOIN ${ref("stg_orders")} AS o
+  ON o.order_id = oi.order_id
+
+${when(incremental(),
+  `WHERE GREATEST(oi.updated_at, o.updated_at) > (SELECT MAX(updated_at) FROM ${self()})`
+)}

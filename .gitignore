@@ -1,0 +1,13 @@
+# Secrets
+*.json
+!package.json
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Dataform
+dataform/node_modules/
+dataform/.df-credentials.json

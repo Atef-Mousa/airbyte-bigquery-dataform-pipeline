@@ -1,0 +1,23 @@
+config {
+  type: "table",
+  schema: "marts",
+  description: "Customer dimension with lifetime order metrics",
+  assertions: {
+    uniqueKey: ["customer_id"]
+  }
+}
+
+SELECT
+  c.customer_id,
+  c.full_name,
+  c.email,
+  c.city,
+  c.created_at,
+  COUNT(DISTINCT o.order_id)                                   AS total_orders,
+  MIN(o.ordered_at)                                            AS first_order_at,
+  MAX(o.ordered_at)                                            AS last_order_at
+FROM ${ref("stg_customers")} AS c
+LEFT JOIN ${ref("stg_orders")} AS o
+  ON o.customer_id = c.customer_id
+ AND o.status != 'cancelled'
+GROUP BY 1, 2, 3, 4, 5

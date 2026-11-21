@@ -1,0 +1,5 @@
+defaultProject: your-gcp-project-id
+defaultLocation: US
+defaultDataset: marts
+defaultAssertionDataset: dataform_assertions
+dataformCoreVersion: 3.0.0

@@ -1,0 +1,18 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "Cleaned orders",
+  assertions: {
+    uniqueKey: ["order_id"],
+    nonNull: ["order_id", "customer_id", "ordered_at"],
+    rowConditions: ["status IN ('completed', 'shipped', 'cancelled')"]
+  }
+}
+
+SELECT
+  CAST(id AS INT64)             AS order_id,
+  CAST(customer_id AS INT64)    AS customer_id,
+  LOWER(TRIM(status))           AS status,
+  CAST(ordered_at AS TIMESTAMP) AS ordered_at,
+  CAST(updated_at AS TIMESTAMP) AS updated_at
+FROM ${ref("orders")}
